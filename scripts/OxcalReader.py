@@ -43,9 +43,9 @@ def FillBetween(ax,dat,color,median = False,prob = 'posterior',**kwargs):
 	xi = np.linspace(s,s+(l-1)*r,l)
 	med = dat['posterior']['median']
 
-	ax.fill_between(xi,y1=np.ones(l)*0.2,y2 = np.array(dat[prob]['prob'])+0.2,color = color,**kwargs)
+	ax.fill_between(xi,y1=np.zeros(l),y2 = np.array(dat[prob]['prob']),color = color,**kwargs)
 	if median == True:
-		ax.scatter(x =med,y=0.2,marker = "D",zorder= 10,alpha = 1,color = 'white',edgecolor =color)
+		ax.scatter(x =med,y=0.2,marker = "D",alpha = 1,color = 'white',edgecolor =color,zorder = 101)
 		
 	
 	return ax,med
