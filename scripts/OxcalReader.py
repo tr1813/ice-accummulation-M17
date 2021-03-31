@@ -9,31 +9,64 @@ It can be loaded in a Jupyter Notebook using the code:
  % import OxcalReader
 
  ------------------------------------------"""
-try:
-	import simplejson as json
-except (ImportError,):
-	import json
 
+import json
+import subprocess
 import numpy as np
 import seaborn as sns
 
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 
-
-def ReadFile(fp):
-
+def MakeJSON(file):
 	"""
-		Reads a file in JSON notation, taking the filepath as argument
+	Calls subprocess to run the .js file and make a stringified JSON object
+    Outputs a file in JSON notation called 'output.txt'
+	"""
+
+	with open(file, 'r') as f:
+		body = f.readlines()
+		header = ["var ocd = [];\n","var calib = [];\n","var model=[];\n"]
+		footer = ["const obj = {ocd, calib,model}\n", "const fs = require('fs');\n",
+				"fs.writeFile(\"output.txt\", JSON.stringify(obj), function(err) {\n",
+				"	if(err) {\n",
+				"	return console.log(err);\n",
+				"	}\n",
+				"	console.log(\"The file was saved!\");\n",
+				"});"]
+				
+		new = header + body + footer
+		f.close()
+        
+	name = file[:-3] + '_export.js'
+    
+	with open(name, 'w+') as f2:
+		for line in new:
+			f2.write(str(line))
+		f2.close()
+        
+	subprocess.call(["node","{}".format(name)])
+	subprocess.call(["rm","{}".format(name)])
+
+def ReadJSON():
+	with open('output.txt', 'r') as f:
+		model = json.load(f)
+		f.close()
+	subprocess.call(['rm','output.txt'])
+    
+	return model
+
+def LoadFile(file):
+	"""
+		Makes an output file in JSON notation, taking the filepath as argument
 		Returns a nested Python Dictionary object, with the structure of the Oxcal 
 		Model
 	"""
-
-	with open(fp, 'r') as f:
-		data = json.load(f)
-
-	return data
-
+    
+	MakeJSON(file)
+	model = ReadJSON()
+    
+	return model
 
 def FillBetween(ax,dat,color,median = False,prob = 'posterior',**kwargs):
 	

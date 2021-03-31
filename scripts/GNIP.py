@@ -180,13 +180,13 @@ def PlotLMWL(ax,df,site,x,y,label,posxy,**kwargs):
 
 	AX.plot(xi,f2(xi),'--',linewidth=0.6,**{"color":"black"})
 
-	AX.text(posxy[0],posxy[1],size='smaller',
-		s = "y={:.2f} ($\pm${:.2f}) x {:+.2f} ($\pm${:.2f})".format(coeffs2["slope"],
+	AX.text(posxy[0],posxy[1],fontsize=9,
+		s = "$\delta^2$H={:.2f}$\pm${:.2f} $\delta^{{18}}$O {:+.2f}$\pm${:.2f}".format(coeffs2["slope"],
 			coeffs2["sd_slope"],
 			coeffs2["intercept"],
 			coeffs2["sd_intercept"]),**kwargs)
 
-	AX.text(posxy[0],posxy[1]+4,label,size='smaller',**kwargs)
+	AX.text(posxy[0],posxy[1]+4,label,fontsize = 9,**kwargs)
 
 
 

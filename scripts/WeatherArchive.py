@@ -18,19 +18,19 @@ def CavePlot(t_in,t_out,rh_in,s=None,e=None,path= None,offset = 0,o_c = None,**k
     '''
 
     # check the longest record.
-    resampler_6h = t_in[s:e].rolling('D')# make  two-daily resmpler object
-    var_6h = resampler_6h.std().to_numpy()
+    resampler_1D = t_in[s:e].rolling('D')# make  two-daily resmpler object
+    var_1D = resampler_1D.std().to_numpy()
     
     ## figure
     fig, axT = plt.subplots(figsize=(13,7))
 
     ## plot temperature
-    axT.plot(t_out[s:e].index.to_numpy(), t_out[s:e].to_numpy() -offset,color = 'lightgray',lw = 0.5, label = 'T (°C) out')
-    axT.plot(t_in[s:e].index.to_numpy(),t_in[s:e].to_numpy(),label = 'T (°C) in')
+    axT.plot(t_out[s:e].index.to_numpy(), t_out[s:e].to_numpy() -offset,color = 'lightgray',lw = 0.5, label = 'T$_{vogel_{corr}}$ (°C)')
+    axT.plot(t_in[s:e].index.to_numpy(),t_in[s:e].to_numpy(),label = 'T$_{L2}$ (°C)')
     
     ## plot relative humidity
     axRH = axT.twinx()
-    axRH.plot(rh_in[s:e].index.to_numpy(),rh_in[s:e].to_numpy(),color = colors[2],label = 'RH (%) in')
+    axRH.plot(rh_in[s:e].index.to_numpy(),rh_in[s:e].to_numpy(),color = colors[2],label = 'RH$_{L2}$ (%)')
 
 
     ## plot the criterion fields
@@ -42,11 +42,18 @@ def CavePlot(t_in,t_out,rh_in,s=None,e=None,path= None,offset = 0,o_c = None,**k
     c1 = t_out[s:e].to_numpy().astype(float) + offset <t_in[s:e]
     c1b = t_in[s:e].to_numpy() < 0
     c2 = rh_in[s:e].to_numpy() < 98
-    c3 = (var_6h > 0.25)
+    c3 = (var_1D > 0.25)
     
-    axT.fill_between(y1=t_min-k,y2=t_min,x=t_out[s:e].index.to_numpy(),where=c1,label = 'T$_{in}$ > T$_{out}$')
-    axT.fill_between(y1=t_min-3*k,y2=t_min-2*k,x=t_out[s:e].index.to_numpy(),where=c2, label = 'RH < 98%',color = colors[2])
-    axT.fill_between(y1=t_min-5*k,y2=t_min-4*k,x=resampler_6h.max().index.to_numpy(),where=c3, label = 'daily var. >1°C',color = colors[3])
+    axT.fill_between(y1=t_min-k,y2=t_min,x=t_out[s:e].index.to_numpy(),where=c1,label = '(a) T$_{vogel_{corr}}$ < T$_{L2}$')
+    
+    x1 = pd.to_datetime("14-08-2018")
+    axT.text(x= x1, y= t_min-k/2,s = '(a)', color = colors[0])
+    axT.text(x= x1, y= t_min-5*k/2,s = '(b)', color = colors[3])
+    axT.text(x= x1, y= t_min-9*k/2,s = '(c)',color = colors[2] )
+    axT.fill_between(y1=t_min-3*k,y2=t_min-2*k,x=resampler_1D.max().index.to_numpy(),where=c3, label = '(b) daily $\sigma_{T_{L2}}$ >0.25°C',color = colors[3])
+    axT.fill_between(y1=t_min-5*k,y2=t_min-4*k,x=t_out[s:e].index.to_numpy(),where=c2, label = '(c) RH < 98%',color = colors[2])
+
+
     
 
     # plot a horizontal line at 0
